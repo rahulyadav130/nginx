@@ -1,0 +1,12 @@
+upstream backend {
+ server slave2;
+ server websrv1;
+}
+
+server {
+ listen 81;
+
+  location / {
+  proxy_pass http://backend;
+ }
+}
