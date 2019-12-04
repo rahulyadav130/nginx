@@ -1,0 +1,47 @@
+http {
+    upstream backend {
+        server backend1.example.com weight=5;
+        server backend2.example.com;
+        server 192.0.0.1 backup;
+    }
+}
+
+#
+http {
+    upstream backend {
+        server backend1.example.com;
+        server backend2.example.com;
+        server 192.0.0.1 backup;
+    }
+    
+    server {
+        location / {
+            proxy_pass http://backend;
+        }
+    }
+}
+## By default nginx work with Round Robin load balancer
+upstream backend {
+   # no load balancing method is specified for Round Robin
+   server backend1.example.com;
+   server backend2.example.com;
+}
+
+# enable stick cookie
+upstream backend {
+    server backend1.example.com;
+    server backend2.example.com;
+    sticky cookie srv_id expires=1h domain=.example.com path=/;
+}
+
+# max connectoin
+    server backend1.example.com max_conns=3;
+    queue 100 timeout=70;
+#health check with nginx
+server {
+    location / {
+        proxy_pass http://backend;
+        health_check port=8080;
+    }
+}
+    server backend2.example.com max_fails=3 fail_timeout=30s;
